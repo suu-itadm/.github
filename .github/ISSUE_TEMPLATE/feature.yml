@@ -1,0 +1,70 @@
+name: Feature
+description: Request a new feature, capability, or enhancement.
+type: Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a feature. Fill out the sections below — the more context you
+        provide, the faster this can be scoped and picked up. Only **Overview** is required.
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: Overview
+      description: What is this feature and why do we need it? Describe the problem or opportunity.
+      placeholder: |
+        A short summary of the feature and the context/motivation behind it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: What specifically needs to be built or changed? Use a checklist where it helps.
+      placeholder: |
+        - Requirement one
+        - Requirement two
+    validations:
+      required: false
+
+  - type: textarea
+    id: outcomes
+    attributes:
+      label: Outcomes
+      description: What does "done" look like? The observable result when this ships.
+      placeholder: |
+        - A user can do X
+        - The system behaves like Y
+    validations:
+      required: false
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related / Dependencies
+      description: Linked issues, blockers, or related work. Reference issues with #number.
+      placeholder: |
+        - Depends on #1234
+        - Related to #5678
+    validations:
+      required: false
+
+  - type: textarea
+    id: questions
+    attributes:
+      label: Open Questions
+      description: Anything unresolved that needs a decision before or during this work.
+      placeholder: |
+        - How should we handle ...?
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Screenshots, links, mockups, or any other supporting context.
+    validations:
+      required: false

@@ -1,0 +1,98 @@
+name: Epic (Kanban)
+description: A parent issue that groups a set of related issues toward a larger goal or project.
+title: "[Epic]: "
+type: Epic
+projects: ["suu-itadm/11"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use an **Epic** to coordinate a larger body of work made up of several smaller
+        issues (Tasks, Bugs, Spikes). Break the work into child issues and link them below
+        using GitHub's native **sub-issues**.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is this epic about? Describe the overall goal and why it matters.
+      placeholder: One or two paragraphs describing the initiative and the problem it solves.
+    validations:
+      required: true
+
+  - type: textarea
+    id: goals
+    attributes:
+      label: Goals & outcomes
+      description: What does success look like? List the outcomes this epic should deliver.
+      placeholder: |
+        - ...
+        - ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope / out of scope
+      description: Clarify what is and isn't included so the boundaries are clear.
+      placeholder: |
+        **In scope:**
+        - ...
+
+        **Out of scope:**
+        - ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: child-issues
+    attributes:
+      label: Child issues
+      description: >-
+        Break this epic into child issues using GitHub's native sub-issues
+        ("Create sub-issue" / "Add sub-issue" in the sidebar after creating this epic).
+        Reference them here for visibility.
+      placeholder: |
+        Link the sub-issues that make up this epic, e.g. #123, #124
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria / Definition of Done
+      description: When can this epic be considered complete?
+      placeholder: |
+        - [ ] ...
+        - [ ] All child issues closed
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Low
+        - Medium
+        - High
+        - Urgent
+      default: 1
+    validations:
+      required: true
+
+  - type: input
+    id: related
+    attributes:
+      label: Related issues
+      description: Link any related epics or issues (not the children above).
+      placeholder: "Relates to #..."
+    validations:
+      required: false
+
+    - type: input
+    id: questions
+    attributes:
+      label: Questions
+      description: List any outstanding questions and associated answers that pertain to the larger epic.

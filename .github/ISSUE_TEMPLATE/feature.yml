@@ -1,6 +1,8 @@
-name: Feature
+name: Feature (Kanban)
 description: Request a new feature, capability, or enhancement.
+title: "[Feature]: "
 type: Feature
+projects: ["suu-itadm/11"]
 body:
   - type: markdown
     attributes:
@@ -41,17 +43,6 @@ body:
       required: false
 
   - type: textarea
-    id: related
-    attributes:
-      label: Related / Dependencies
-      description: Linked issues, blockers, or related work. Reference issues with #number.
-      placeholder: |
-        - Depends on #1234
-        - Related to #5678
-    validations:
-      required: false
-
-  - type: textarea
     id: questions
     attributes:
       label: Open Questions
@@ -66,5 +57,35 @@ body:
     attributes:
       label: Additional Information
       description: Screenshots, links, mockups, or any other supporting context.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Low
+        - Medium
+        - High
+        - Urgent
+      default: 1
+    validations:
+      required: true
+
+  - type: input
+    id: parent-epic
+    attributes:
+      label: Parent Epic
+      description: If this belongs to an epic, link it here.
+      placeholder: "Parent: #..."
+    validations:
+      required: false
+
+  - type: input
+    id: related
+    attributes:
+      label: Related issues
+      placeholder: "Relates to #..."
     validations:
       required: false

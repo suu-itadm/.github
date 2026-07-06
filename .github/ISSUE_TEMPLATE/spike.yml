@@ -1,0 +1,64 @@
+name: Spike (Kanban)
+description: >-
+  A time-boxed investigation to answer questions or reduce uncertainty.
+  Produces documented findings rather than (usually) a PR.
+title: "[Spike]: "
+# type: Spike   # TODO: uncomment once the "Spike" issue type is created at the org level (suu-itadm)
+projects: ["suu-itadm/11"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use a **Spike** to investigate an unknown before committing to work. The output is
+        **documentation** — what you set out to learn, what you found, and what's still open —
+        not (usually) a pull request.
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective / question to answer
+      description: What are we trying to learn or decide? Be specific about the question(s).
+    validations:
+      required: true
+
+  - type: input
+    id: timebox
+    attributes:
+      label: Time box
+      description: How much time is allotted before we stop and report what we have?
+      placeholder: "e.g. 2 days"
+    validations:
+      required: false
+
+  - type: textarea
+    id: findings
+    attributes:
+      label: Findings
+      description: Document what you learned. (Fill in as the investigation progresses.)
+    validations:
+      required: false
+
+  - type: textarea
+    id: open-questions
+    attributes:
+      label: Open questions / follow-ups
+      description: What remains unanswered? What new questions surfaced?
+    validations:
+      required: false
+
+  - type: textarea
+    id: recommendation
+    attributes:
+      label: Recommendation / next steps
+      description: Based on the findings, what should we do next? (Link any follow-up issues.)
+    validations:
+      required: false
+
+  - type: input
+    id: parent-epic
+    attributes:
+      label: Parent Epic
+      description: If this belongs to an epic, link it here.
+      placeholder: "Parent: #..."
+    validations:
+      required: false

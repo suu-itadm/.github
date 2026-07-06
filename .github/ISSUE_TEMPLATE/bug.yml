@@ -1,0 +1,100 @@
+name: Bug (Kanban)
+description: An unplanned defect or unexpected behavior in existing work that needs to be fixed.
+title: "[Bug]: "
+type: Bug
+projects: ["suu-itadm/11"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please give enough detail for someone to **reproduce** and fix it.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What's going wrong? A clear, concise description of the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click on ...
+        3. Scroll to ...
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Where does this happen? Include anything relevant to narrowing it down.
+      placeholder: |
+        - System / app:
+        - Environment: prod / test / dev
+        - Browser / OS / version:
+        - Affected users:
+    validations:
+      required: false
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs / screenshots
+      description: Paste any error messages, logs, or screenshots. (Drag & drop images here.)
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria / Definition of Done
+      description: What does "fixed" look like?
+      placeholder: |
+        - [ ] Root cause identified
+        - [ ] Fix verified in ...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Low
+        - Medium
+        - High
+        - Urgent
+      default: 1
+    validations:
+      required: true
+
+  - type: input
+    id: parent-epic
+    attributes:
+      label: Parent Epic
+      description: If this belongs to an epic, link it here.
+      placeholder: "Parent: #..."
+    validations:
+      required: false

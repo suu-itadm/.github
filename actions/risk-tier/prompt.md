@@ -1,6 +1,6 @@
 ## Review Depth
 
-Tell the human reviewer how closely this PR needs reading, and where to look. This goes at the very top of your comment, before "What This PR Does".
+Tell the human reviewer how closely this PR needs reading, and where to look. This block goes right after your comment's title, before "What This PR Does".
 
 ### Rules that matched
 
@@ -22,7 +22,7 @@ If the PR body has a `## Merge Danger` section (agent-loop PRs do), compare it a
 
 ### Format
 
-Start your comment with exactly this block, keeping the tier word as written:
+Use exactly this block, keeping the tier word as written:
 
 ```
 ### Review depth: deep 🔴

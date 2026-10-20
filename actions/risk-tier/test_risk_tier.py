@@ -1,9 +1,9 @@
-import contextlib
-import io
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import risk_tier as rt
 
@@ -124,10 +124,11 @@ class CliTests(unittest.TestCase):
                 r = Path(tmp, "rules.json")
                 r.write_text(json.dumps(rules))
                 args += ["--rules", str(r)]
-            out = io.StringIO()
-            with contextlib.redirect_stdout(out):
+            # Read outputs the way Actions does, whatever the runner has set.
+            out = Path(tmp, "github_output")
+            with mock.patch.dict(os.environ, {"GITHUB_OUTPUT": str(out)}):
                 rt.main(args)
-            return out.getvalue()
+            return out.read_text()
 
     def test_match_outputs_deep_and_prompt(self):
         out = self.run_match({"categories": {"schema": {"paths": ["**/migrations/**"]}}},

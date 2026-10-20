@@ -1,0 +1,50 @@
+name: Risk tier label
+description: >-
+  Applies review:skim, review:intent or review:deep from the "Review depth"
+  line in the Claude Code Summary comment. Run after the Claude step.
+
+inputs:
+  pr:
+    description: PR number
+    required: true
+  deep:
+    description: The `deep` output of the risk-tier action
+    required: true
+  token:
+    description: Token that can label the PR (pull-requests and issues write)
+    default: ${{ github.token }}
+
+outputs:
+  tier:
+    description: The tier applied
+    value: ${{ steps.label.outputs.tier }}
+
+runs:
+  using: composite
+  steps:
+    - id: label
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        GH_REPO: ${{ github.repository }}
+        PR: ${{ inputs.pr }}
+        DEEP: ${{ inputs.deep }}
+      run: |
+        # Newest comment with the block's heading wins, so a re-review relabels the PR.
+        comment="$(gh pr view "$PR" --json comments \
+          -q '[.comments[].body | select(test("(?m)^#+ *Review depth:"))] | last // ""')"
+        tier="$(python3 "$GITHUB_ACTION_PATH/../risk_tier.py" tier --deep "$DEEP" <<< "$comment")"
+        if [ -z "$comment" ]; then
+          echo "::warning::No Review depth line in the PR comments; labeling deep."
+        fi
+
+        # --force makes creation idempotent and keeps colours in step across repos.
+        gh label create review:skim   --force --color 0E8A16 --description "Review depth: comments, docs, tests, copy" >/dev/null
+        gh label create review:intent --force --color FBCA04 --description "Review depth: check intent, skim the lines" >/dev/null
+        gh label create review:deep   --force --color D93F0B --description "Review depth: read line by line" >/dev/null
+        gh label create tier-miss     --force --color 5319E7 --description "The review-depth label was wrong" >/dev/null
+
+        others="$(printf 'review:%s\n' skim intent deep | grep -vx "review:$tier" | paste -sd,)"
+        gh pr edit "$PR" --add-label "review:$tier" --remove-label "$others"
+        echo "tier=$tier" >> "$GITHUB_OUTPUT"
+        echo "Labeled review:$tier"

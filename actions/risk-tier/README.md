@@ -87,6 +87,8 @@ A repo with no rules file still works: Claude picks every tier.
 
 If GitHub can't return the diff (it refuses diffs over 20,000 lines), the PR is labeled deep.
 
+If `risk-tiers.yml` is invalid (bad YAML, an unknown category, or the wrong shape), the step posts a warning and the PR is labeled deep. The Claude review still runs.
+
 ## Tests
 
 ```

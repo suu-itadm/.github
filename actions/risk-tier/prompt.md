@@ -13,8 +13,19 @@ This repo's `.github/risk-tiers.yml` marks some files and code as sensitive. The
 - If any rule matched above, the tier is **deep**. Don't pick a lower one.
 - Otherwise:
   - **skim**: only comments, docstrings, docs, copy or text changes, CSS, formatting, or tests.
-  - **intent**: logic changes that the PR's own tests exercise, and nothing that changes the database schema, who can see or do what, writes to Banner or another external system, money, student records, raw SQL, unescaped output, settings or secrets, CI or deploy, or scheduled jobs.
-  - **deep**: anything else, or anything you aren't sure about. When in doubt, pick deep.
+  - **deep** if the PR touches any of these, even in a small way:
+    - the database schema
+    - who can see or do what (login, permissions, object access)
+    - writes to Banner or another external system
+    - money
+    - student records
+    - raw SQL
+    - unescaped output
+    - settings or secrets
+    - CI or deploy
+    - scheduled jobs
+  - **deep** also for logic changes the PR's own tests don't exercise, and for anything you aren't sure about. When in doubt, pick deep.
+  - **intent**: logic changes that the PR's own tests exercise, when nothing above makes it deep.
 
 ### Check the Merge Danger section
 

@@ -1,0 +1,59 @@
+name: Risk tier label
+description: >-
+  Applies review:skim, review:intent or review:deep from the "Review depth"
+  line in the Claude Code Summary comment. Run after the Claude step.
+
+inputs:
+  pr:
+    description: PR number
+    required: true
+  deep:
+    description: The `deep` output of the risk-tier action
+    required: true
+  token:
+    description: Token that can label the PR (pull-requests and issues write)
+    default: ${{ github.token }}
+
+outputs:
+  tier:
+    description: The tier applied
+    value: ${{ steps.label.outputs.tier }}
+
+runs:
+  using: composite
+  steps:
+    - id: label
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        GH_REPO: ${{ github.repository }}
+        PR: ${{ inputs.pr }}
+        DEEP: ${{ inputs.deep }}
+      run: |
+        # Newest comment with the block's heading wins, so a re-review relabels the PR.
+        comment="$(gh pr view "$PR" --json comments \
+          -q '[.comments[].body | select(test("(?m)^#+ *Review depth:"))] | last // ""')"
+        # Anything but an explicit "false" (say, a failed risk step) means deep.
+        [ "$DEEP" = "false" ] || DEEP=true
+        tier="$(python3 "$GITHUB_ACTION_PATH/../risk_tier.py" tier --deep "$DEEP" <<< "$comment")"
+        if [ -z "$comment" ]; then
+          echo "::warning::No Review depth line in the PR comments; labeling deep."
+        fi
+
+        # Create only missing labels, so a repo's own edits to them stick.
+        existing="$(gh label list --limit 1000 --json name -q '.[].name')"
+        while IFS='|' read -r name color desc; do
+          # A concurrent run may create it first; that's fine.
+          grep -qxF "$name" <<< "$existing" || gh label create "$name" --color "$color" --description "$desc" >/dev/null \
+            || echo "::notice::label $name not created (it may already exist)"
+        done <<'LABELS'
+        review:skim|0E8A16|Review depth: comments, docs, tests, copy
+        review:intent|FBCA04|Review depth: check intent, skim the lines
+        review:deep|D93F0B|Review depth: read line by line
+        tier-miss|5319E7|The review-depth label was wrong
+        LABELS
+
+        others="$(printf 'review:%s\n' skim intent deep | grep -vx "review:$tier" | paste -sd,)"
+        gh pr edit "$PR" --add-label "review:$tier" --remove-label "$others"
+        echo "tier=$tier" >> "$GITHUB_OUTPUT"
+        echo "Labeled review:$tier"

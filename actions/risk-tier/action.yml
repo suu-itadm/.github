@@ -1,0 +1,63 @@
+name: Risk tier
+description: >-
+  Matches a PR against the repo's .github/risk-tiers.yml and returns the review
+  depth prompt block for the Claude Code Summary. Run after actions/checkout.
+
+inputs:
+  pr:
+    description: PR number
+    required: true
+  rules:
+    description: Rules file, relative to the checkout. Missing = no rules; Claude picks every tier.
+    default: .github/risk-tiers.yml
+  token:
+    description: Token that can read the PR
+    default: ${{ github.token }}
+
+outputs:
+  deep:
+    description: '"true" when a rule matched, so the PR is review:deep whatever Claude says'
+    value: ${{ steps.match.outputs.deep }}
+  matched:
+    description: Markdown list of the matched rules, or "None."
+    value: ${{ steps.match.outputs.matched }}
+  prompt:
+    description: The review-depth block to append to the Claude prompt
+    value: ${{ steps.match.outputs.prompt }}
+
+runs:
+  using: composite
+  steps:
+    - id: match
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        GH_REPO: ${{ github.repository }}
+        PR: ${{ inputs.pr }}
+        RULES_PATH: ${{ inputs.rules }}
+      run: |
+        diff="$RUNNER_TEMP/risk-tier.diff"
+        rules="$RUNNER_TEMP/risk-tier-rules.json"
+        args=()
+        # GitHub refuses diffs over 20,000 lines; an unread diff is deep.
+        if ! gh pr diff "$PR" > "$diff"; then
+          : > "$diff"
+          args+=(--unchecked "gh pr diff failed (diff too large?)")
+        fi
+        if [ -f "$RULES_PATH" ]; then
+          if yq -o=json '.' "$RULES_PATH" > "$rules"; then
+            args+=(--rules "$rules")
+          else
+            echo "::warning::$RULES_PATH isn't valid YAML; labeling deep."
+            args+=(--unchecked "$RULES_PATH isn't valid YAML")
+          fi
+        else
+          echo "::notice::No $RULES_PATH in this repo; Claude picks every tier."
+        fi
+        # The Claude review must run whatever happens here: on any failure, fall
+        # back to deep with no prompt block.
+        if ! python3 "$GITHUB_ACTION_PATH/risk_tier.py" match \
+            --diff "$diff" --template "$GITHUB_ACTION_PATH/prompt.md" "${args[@]}"; then
+          echo "::warning::risk_tier.py failed; labeling deep."
+          printf 'deep=true\nmatched=risk_tier.py failed\nprompt=\n' >> "$GITHUB_OUTPUT"
+        fi

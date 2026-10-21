@@ -1,0 +1,24 @@
+name: Risk tier tests
+
+on:
+  pull_request:
+    paths: ["actions/risk-tier/**", ".github/workflows/risk-tier-tests.yml"]
+  push:
+    branches: [main]
+    paths: ["actions/risk-tier/**", ".github/workflows/risk-tier-tests.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      # The actions run on the runner's system Python, so test on that too.
+      - name: Unit tests
+        working-directory: actions/risk-tier
+        run: python3 -m unittest -v
+      # The action converts the YAML rules with the runner's preinstalled yq.
+      - name: yq is available
+        run: yq --version

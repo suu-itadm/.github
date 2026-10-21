@@ -54,5 +54,10 @@ runs:
         else
           echo "::notice::No $RULES_PATH in this repo; Claude picks every tier."
         fi
-        python3 "$GITHUB_ACTION_PATH/risk_tier.py" match \
-          --diff "$diff" --template "$GITHUB_ACTION_PATH/prompt.md" "${args[@]}"
+        # The Claude review must run whatever happens here: on any failure, fall
+        # back to deep with no prompt block.
+        if ! python3 "$GITHUB_ACTION_PATH/risk_tier.py" match \
+            --diff "$diff" --template "$GITHUB_ACTION_PATH/prompt.md" "${args[@]}"; then
+          echo "::warning::risk_tier.py failed; labeling deep."
+          printf 'deep=true\nmatched=risk_tier.py failed\nprompt=\n' >> "$GITHUB_OUTPUT"
+        fi

@@ -33,6 +33,8 @@ runs:
         # Newest comment with the block's heading wins, so a re-review relabels the PR.
         comment="$(gh pr view "$PR" --json comments \
           -q '[.comments[].body | select(test("(?m)^#+ *Review depth:"))] | last // ""')"
+        # Anything but an explicit "false" (say, a failed risk step) means deep.
+        [ "$DEEP" = "false" ] || DEEP=true
         tier="$(python3 "$GITHUB_ACTION_PATH/../risk_tier.py" tier --deep "$DEEP" <<< "$comment")"
         if [ -z "$comment" ]; then
           echo "::warning::No Review depth line in the PR comments; labeling deep."
@@ -41,7 +43,9 @@ runs:
         # Create only missing labels, so a repo's own edits to them stick.
         existing="$(gh label list --limit 1000 --json name -q '.[].name')"
         while IFS='|' read -r name color desc; do
-          grep -qxF "$name" <<< "$existing" || gh label create "$name" --color "$color" --description "$desc" >/dev/null
+          # A concurrent run may create it first; that's fine.
+          grep -qxF "$name" <<< "$existing" || gh label create "$name" --color "$color" --description "$desc" >/dev/null \
+            || echo "::notice::label $name not created (it may already exist)"
         done <<'LABELS'
         review:skim|0E8A16|Review depth: comments, docs, tests, copy
         review:intent|FBCA04|Review depth: check intent, skim the lines

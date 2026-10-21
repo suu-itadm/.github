@@ -94,6 +94,18 @@ class RulesTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "pcard"):
             rt.load_rules({"categories": {"pcard": {"paths": ["x"]}}})
 
+    def test_wrong_shapes_are_errors(self):
+        bad = [
+            ["schema"],
+            {"categories": ["schema"]},
+            {"categories": {"schema": ["**/migrations/**"]}},
+            {"categories": {"schema": {"paths": "**/migrations/**"}}},
+            {"ignore": "docs/**"},
+        ]
+        for data in bad:
+            with self.subTest(data=data), self.assertRaises(ValueError):
+                rt.load_rules(data)
+
     def test_empty_rules_match_nothing(self):
         self.assertEqual(rt.match(rt.load_rules({}), diff("portal/hr/migrations/1.py", "+x")), [])
         self.assertEqual(rt.match(rt.load_rules(None), diff("portal/hr/migrations/1.py", "+x")), [])
@@ -147,6 +159,16 @@ class CliTests(unittest.TestCase):
         out = self.run_match(None, "", "--unchecked", "diff too large")
         self.assertRegex(out, r"deep<<(EOF_\w+)\ntrue\n\1")
         self.assertIn("matched `diff too large`", out)
+
+    def test_invalid_rules_force_deep_instead_of_failing(self):
+        out = self.run_match({"categories": {"pcard": {"paths": ["x"]}}}, diff("app/views.py", "+x"))
+        self.assertRegex(out, r"deep<<(EOF_\w+)\ntrue\n\1")
+        self.assertIn("invalid risk-tiers.yml: unknown categories: pcard", out)
+
+    def test_every_unchecked_reason_is_listed(self):
+        out = self.run_match(None, "", "--unchecked", "diff too large", "--unchecked", "bad YAML")
+        self.assertIn("matched `diff too large`", out)
+        self.assertIn("matched `bad YAML`", out)
 
 
 if __name__ == "__main__":

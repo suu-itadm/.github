@@ -56,13 +56,27 @@ def glob_to_regex(pattern):
     return re.compile("".join(out) + r"\Z")
 
 
+def _string_list(value, where):
+    if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
+        raise ValueError(f"{where} must be a list of strings")
+    return value
+
+
 def load_rules(data):
     """Validates the rules and compiles their globs. Unknown categories are an
     error so every repo keeps the shared vocabulary."""
     data = data or {}
+    if not isinstance(data, dict) or not isinstance(data.get("categories", {}), dict):
+        raise ValueError("expected `ignore:` and `categories:` at the top level")
     unknown = set(data.get("categories", {})) - set(CATEGORIES)
     if unknown:
         raise ValueError(f"unknown categories: {', '.join(sorted(unknown))}")
+    _string_list(data.get("ignore", []), "ignore")
+    for name, rule in data.get("categories", {}).items():
+        if not isinstance(rule, dict):
+            raise ValueError(f"{name} must have `paths:` and/or `lines:`")
+        _string_list(rule.get("paths", []), f"{name}.paths")
+        _string_list(rule.get("lines", []), f"{name}.lines")
     return {
         "ignore": [glob_to_regex(g) for g in data.get("ignore", [])],
         "categories": {
@@ -150,7 +164,8 @@ def main(argv=None):
     m.add_argument("--rules", type=Path, help="rules as JSON; missing file = no rules")
     m.add_argument("--diff", type=Path, required=True)
     m.add_argument("--template", type=Path, required=True)
-    m.add_argument("--unchecked", metavar="REASON", help="the diff couldn't be read: force deep")
+    m.add_argument("--unchecked", metavar="REASON", action="append", default=[],
+                   help="something couldn't be checked: force deep (repeatable)")
     t = sub.add_parser("tier")
     t.add_argument("--deep", choices=("true", "false"), required=True)
     args = parser.parse_args(argv)
@@ -159,10 +174,17 @@ def main(argv=None):
         print(tier_from_comment(sys.stdin.read(), args.deep == "true"))
         return 0
 
-    data = json.loads(args.rules.read_text()) if args.rules and args.rules.exists() else {}
-    hits = match(load_rules(data), args.diff.read_text(errors="replace"))
-    if args.unchecked:
-        hits.insert(0, {"category": "unchecked", "file": "(whole PR)", "rule": args.unchecked})
+    # A bad rules file costs one over-cautious label, never the review itself.
+    unchecked = list(args.unchecked)
+    try:
+        data = json.loads(args.rules.read_text()) if args.rules and args.rules.exists() else {}
+        rules = load_rules(data)
+    except ValueError as e:
+        print(f"::warning::risk-tiers.yml is invalid ({e}); labeling deep.")
+        unchecked.append(f"invalid risk-tiers.yml: {e}")
+        rules = load_rules({})
+    hits = match(rules, args.diff.read_text(errors="replace"))
+    hits[:0] = [{"category": "unchecked", "file": "(whole PR)", "rule": r} for r in unchecked]
     matched = summarize(hits)
     write_outputs({
         "deep": "true" if hits else "false",

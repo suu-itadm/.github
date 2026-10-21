@@ -45,8 +45,12 @@ runs:
           args+=(--unchecked "gh pr diff failed (diff too large?)")
         fi
         if [ -f "$RULES_PATH" ]; then
-          yq -o=json '.' "$RULES_PATH" > "$rules"
-          args+=(--rules "$rules")
+          if yq -o=json '.' "$RULES_PATH" > "$rules"; then
+            args+=(--rules "$rules")
+          else
+            echo "::warning::$RULES_PATH isn't valid YAML; labeling deep."
+            args+=(--unchecked "$RULES_PATH isn't valid YAML")
+          fi
         else
           echo "::notice::No $RULES_PATH in this repo; Claude picks every tier."
         fi

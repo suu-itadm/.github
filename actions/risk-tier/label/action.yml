@@ -38,11 +38,16 @@ runs:
           echo "::warning::No Review depth line in the PR comments; labeling deep."
         fi
 
-        # --force makes creation idempotent and keeps colours in step across repos.
-        gh label create review:skim   --force --color 0E8A16 --description "Review depth: comments, docs, tests, copy" >/dev/null
-        gh label create review:intent --force --color FBCA04 --description "Review depth: check intent, skim the lines" >/dev/null
-        gh label create review:deep   --force --color D93F0B --description "Review depth: read line by line" >/dev/null
-        gh label create tier-miss     --force --color 5319E7 --description "The review-depth label was wrong" >/dev/null
+        # Create only missing labels, so a repo's own edits to them stick.
+        existing="$(gh label list --limit 1000 --json name -q '.[].name')"
+        while IFS='|' read -r name color desc; do
+          grep -qxF "$name" <<< "$existing" || gh label create "$name" --color "$color" --description "$desc" >/dev/null
+        done <<'LABELS'
+        review:skim|0E8A16|Review depth: comments, docs, tests, copy
+        review:intent|FBCA04|Review depth: check intent, skim the lines
+        review:deep|D93F0B|Review depth: read line by line
+        tier-miss|5319E7|The review-depth label was wrong
+        LABELS
 
         others="$(printf 'review:%s\n' skim intent deep | grep -vx "review:$tier" | paste -sd,)"
         gh pr edit "$PR" --add-label "review:$tier" --remove-label "$others"

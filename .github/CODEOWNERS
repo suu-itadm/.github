@@ -1,0 +1,12 @@
+# Code here runs inside other suu-itadm repositories' workflows, with their
+# tokens. A change needs a review from someone on the owning team who isn't
+# its author, the same rule those repositories apply to their own .github/.
+# Later rules win, so keep these specific paths and leave everything else
+# unowned.
+
+# Shared actions, such as the review-depth risk tiers.
+/actions/               @suu-itadm/itadm-admins
+
+# This repository's own workflows and this file.
+/.github/workflows/     @suu-itadm/itadm-admins
+/.github/CODEOWNERS     @suu-itadm/itadm-admins

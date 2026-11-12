@@ -25,18 +25,19 @@
 
 ## Testing
 
-### How was this tested?
+<!-- Test by risk, not by file. See the repo's TESTING.md if it has one. -->
 
-<!-- Check all that apply and add detail where useful. -->
+**Risk:** <!-- What breaks for a user if this is wrong? permissions · student/FERPA data · money or dates · data writes · an API another system uses · none -->
 
-- [ ] Manual testing
-- [ ] New automated tests added
-- [ ] Existing tests updated
-- [ ] Not tested (explain why below)
+**Test that proves it:** <!-- path::test_name. For a bug or behaviour change, paste the run from BEFORE your change showing it fail. -->
 
-### Test details
+**Tests changed or removed:** <!-- Each one and why, or "none". Changed assertions belong in their own test(scope): commit. -->
 
-<!-- Steps you took to verify, edge cases considered, and anything a reviewer should re-run. -->
+**No new test because:** <!-- Only if no test was added. -->
+
+**Manual check:** <!-- What you clicked or ran, and what you saw. -->
+
+- [ ] New tests check behaviour a user would notice (no tests of source text, CSS classes, constants, or a faked database)
 
 ## Screenshots / Recordings
 

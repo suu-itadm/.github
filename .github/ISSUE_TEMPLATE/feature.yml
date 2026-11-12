@@ -43,6 +43,20 @@ body:
       required: false
 
   - type: textarea
+    id: tests
+    attributes:
+      label: Tests required
+      description: >-
+        What breaks for a user if this is wrong, and what test proves it works?
+        Write "None" and why if no automated test is needed. Ask for tests by risk,
+        not one per file.
+      placeholder: |
+        Risk: another advisor can edit my note (permissions)
+        Test: PATCH as a different advisor returns 404 and the note is unchanged
+    validations:
+      required: false
+
+  - type: textarea
     id: questions
     attributes:
       label: Open Questions

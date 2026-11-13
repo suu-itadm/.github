@@ -77,6 +77,16 @@ body:
     validations:
       required: false
 
+  - type: textarea
+    id: regression-test
+    attributes:
+      label: Regression test
+      description: The automated test that fails today and passes once this is fixed.
+      placeholder: |
+        Saving a hold with an end date before the start date returns 422 and stores nothing
+    validations:
+      required: false
+
   - type: dropdown
     id: priority
     attributes:

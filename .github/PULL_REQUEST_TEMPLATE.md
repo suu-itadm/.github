@@ -40,6 +40,8 @@
 
 **Automated tests:** <!-- path::test_name and the bug each one catches. For a bug fix, paste the failing run from before your change. -->
 
+**Migrations:** <!-- For a database migration, paste the dev run that applied it, rolled it back and applied it again. Prove it there; don't commit a test that replays the migration. Delete if N/A. -->
+
 **Manual steps:** <!-- What you clicked or ran, and what you saw. -->
 
 - [ ] New tests check behaviour a user would notice (no tests of source text, CSS classes, constants, or a faked database)
